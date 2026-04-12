@@ -405,7 +405,7 @@ const CenteredComposer = () => {
 
   return (
     <div className="mx-auto flex w-full flex-col gap-4 overflow-visible mt-4">
-      <ComposerPrimitive.Root className="relative flex w-full flex-col rounded-3xl bg-sidebar px-1 pt-2 shadow-sm">
+      <ComposerPrimitive.Root className="relative flex w-full flex-col rounded-3xl bg-sidebar border border-border/60 px-1 pt-2 shadow-sm">
         <div className="relative flex items-center gap-2 mb-1">
           <ComposerPrimitive.Input
             ref={inputRef}
@@ -494,7 +494,7 @@ const Composer = () => {
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <div className="relative flex justify-end" />
-      <ComposerPrimitive.Root className="relative flex w-full flex-col rounded-3xl bg-sidebar px-1 pt-2 shadow-sm">
+      <ComposerPrimitive.Root className="relative flex w-full flex-col rounded-3xl bg-sidebar border border-border/60 px-1 pt-2 shadow-sm">
         <div className="relative flex items-center gap-2 mb-1">
           <ComposerPrimitive.Input
             ref={inputRef}
