@@ -96,7 +96,7 @@ export function Thread({ suggestedPrompts }: ThreadProps) {
     <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion="user">
         <ThreadPrimitive.Root
-          className="h-full w-full flex flex-col bg-background"
+          className="h-full w-full flex flex-col bg-background border-l border-border/40"
           style={{
             ["--thread-max-width" as string]: "44rem",
           }}
