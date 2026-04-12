@@ -6,8 +6,9 @@
 
 import type { ChatModelAdapter, ThreadMessage } from "@assistant-ui/react";
 
-// Use Python MCP Agent instead of Node.js server
-const PYTHON_AGENT_URL = import.meta.env.VITE_PYTHON_AGENT_URL || 'http://localhost:8000';
+// Agent URL: empty in production (proxied via /agent/* by Netlify), localhost in dev
+const agentEnv = import.meta.env.VITE_PYTHON_AGENT_URL;
+const PYTHON_AGENT_URL = agentEnv !== undefined && agentEnv !== '' ? agentEnv : (import.meta.env.DEV ? 'http://localhost:8000' : '');
 const API_ENDPOINT = `${PYTHON_AGENT_URL}/api/chat`;
 
 export interface ToolCallData {
@@ -253,13 +254,11 @@ export function createAssistantUIAdapter(options?: AssistantUIAdapterOptions): C
           return;
         }
 
-        // Provide more detailed error message
-        let errorMessage = "Xerow AI agent is not reachable. ";
+        // Provide error message
+        let errorMessage = "Xerow AI is temporarily unavailable. ";
 
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-          errorMessage += "The agent server appears to be offline.\n\n";
-          errorMessage += "To start it, run: `python3 apps/mcp-agent/server.py`\n";
-          errorMessage += "The agent should be running at http://localhost:8000";
+          errorMessage += "We're unable to connect to the AI service right now. Please try again in a moment.";
         } else if (error instanceof Error) {
           errorMessage += error.message;
         } else {
