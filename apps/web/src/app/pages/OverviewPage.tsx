@@ -16,8 +16,8 @@ import {
   Activity, AlertTriangle, TicketCheck, Wind, GitBranch, Droplet,
   ArrowUpRight, CheckCircle, Radio,
 } from 'lucide-react';
+import { API_BASE } from '../../lib/config';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 function getToken() { return localStorage.getItem('auth_token'); }
 
 const TYPE_ICONS: Record<string, typeof Wind> = { turbine: Wind, pipeline: GitBranch, well: Droplet };

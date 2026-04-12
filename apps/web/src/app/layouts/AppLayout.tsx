@@ -9,6 +9,7 @@ import { AppSidebar } from '../components/AppSidebar';
 import { SidebarProvider, SidebarInset } from '../components/ui/sidebar';
 import { SignInPage } from '../pages/SignInPage';
 import { CommandPalette } from '../components/CommandPalette';
+import { API_BASE } from '../../lib/config';
 import { toast } from 'sonner';
 
 export interface User {
@@ -32,7 +33,7 @@ export function AppLayout() {
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (token) {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+      const API_BASE_URL = `${API_BASE}/api`;
       fetch(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -46,7 +47,7 @@ export function AppLayout() {
   }, []);
 
   const handleSignIn = useCallback(async (email: string, password: string) => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+    const API_BASE_URL = `${API_BASE}/api`;
     const response = await fetch(`${API_BASE_URL}/auth/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

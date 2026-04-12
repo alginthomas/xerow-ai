@@ -5,8 +5,8 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, TicketCheck, CheckCircle, Activity } from 'lucide-react';
+import { API_BASE } from '../../lib/config';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 interface ShiftData {
   anomalies: { total: number; by_severity: Record<string, number> };

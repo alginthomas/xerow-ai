@@ -15,8 +15,8 @@ import {
 } from './ui/select';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
+import { API_BASE } from '../../lib/config';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 interface TicketCreateDialogProps {
   assetId: string;

@@ -10,8 +10,8 @@ import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { SlaTimer } from '../components/SlaTimer';
 import { AlertTriangle, ArrowUpRight, User } from 'lucide-react';
+import { API_BASE } from '../../lib/config';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const SEVERITY_BADGE: Record<string, string> = {
   amber: 'bg-severity-amber/20 text-severity-amber border-severity-amber/30',

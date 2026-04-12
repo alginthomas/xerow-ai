@@ -17,8 +17,8 @@ import {
   Wind, GitBranch, Droplet, TicketCheck, AlertTriangle, LayoutDashboard,
   Bot, Settings, Activity, MessageSquarePlus,
 } from 'lucide-react';
+import { API_BASE } from '../../lib/config';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 function getToken() { return localStorage.getItem('auth_token'); }
 
