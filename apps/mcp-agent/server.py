@@ -20,15 +20,40 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from core import Agent
+from session_store import save_session, load_session, delete_session, is_redis_available
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ── Session store ────────────────────────────────────────────────
+# ── Session store (in-memory + Redis persistence) ────────────────
 
 sessions: dict[str, Agent] = {}
-SESSION_TTL = 3600  # 1 hour
-CLEANUP_INTERVAL = 300  # 5 minutes
+SESSION_TTL = 3600
+CLEANUP_INTERVAL = 300
+
+
+def get_or_create_agent(session_id: str) -> Agent:
+    """Get agent from memory, or restore from Redis, or create new."""
+    if session_id in sessions:
+        return sessions[session_id]
+
+    stored = load_session(session_id)
+    if stored:
+        agent = Agent(session_id)
+        agent.messages = stored.get("messages", agent.messages)
+        agent.last_access = stored.get("last_access", time.time())
+        sessions[session_id] = agent
+        logger.info(f"Restored session from Redis: {session_id}")
+        return agent
+
+    agent = Agent(session_id)
+    sessions[session_id] = agent
+    logger.info(f"New session: {session_id}")
+    return agent
+
+
+def persist_agent(session_id: str, agent: Agent):
+    save_session(session_id, agent.messages, agent.last_access)
 
 
 def cleanup_expired_sessions():
@@ -39,11 +64,11 @@ def cleanup_expired_sessions():
     ]
     for sid in expired:
         agent = sessions.pop(sid)
+        delete_session(sid)
         try:
             agent.cleanup()
         except Exception as e:
             logger.error(f"Cleanup error for {sid}: {e}")
-        logger.info(f"Expired session: {sid}")
 
 
 async def background_cleanup():
@@ -58,14 +83,11 @@ async def background_cleanup():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     task = asyncio.create_task(background_cleanup())
-    logger.info("Started session cleanup task")
+    logger.info(f"Session store: {'Redis' if is_redis_available() else 'in-memory'}")
     yield
     task.cancel()
-    for agent in sessions.values():
-        try:
-            agent.cleanup()
-        except Exception:
-            pass
+    for sid, agent in sessions.items():
+        persist_agent(sid, agent)
     sessions.clear()
 
 
@@ -110,21 +132,17 @@ class ChatResponse(BaseModel):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "Xerow AI Agent", "model": "claude-sonnet"}
+    return {"status": "ok", "service": "Xerow AI Agent", "model": "gpt-4o", "session_store": "redis" if is_redis_available() else "memory"}
 
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
     session_id = req.session_id or str(uuid.uuid4())
-
-    if session_id not in sessions:
-        sessions[session_id] = Agent(session_id)
-        logger.info(f"New session: {session_id}")
-
-    agent = sessions[session_id]
+    agent = get_or_create_agent(session_id)
 
     try:
         result = agent.run(req.message, context=req.context)
+        persist_agent(session_id, agent)
         return ChatResponse(
             content=result.get("content", ""),
             session_id=session_id,
@@ -137,14 +155,9 @@ async def chat(req: ChatRequest):
 
 @app.post("/api/chat/stream")
 async def chat_stream(req: ChatRequest):
-    """SSE streaming endpoint for real-time Claude responses with tool calling."""
+    """SSE streaming endpoint for real-time responses with tool calling."""
     session_id = req.session_id or str(uuid.uuid4())
-
-    if session_id not in sessions:
-        sessions[session_id] = Agent(session_id)
-        logger.info(f"New streaming session: {session_id}")
-
-    agent = sessions[session_id]
+    agent = get_or_create_agent(session_id)
 
     async def generate():
         # Send session ID first
@@ -168,6 +181,9 @@ async def chat_stream(req: ChatRequest):
 
                 elif event_type == "error":
                     yield f"event: error\ndata: {json.dumps({'error': event.get('content', 'Unknown error')})}\n\n"
+
+            # Persist session to Redis after streaming completes
+            persist_agent(session_id, agent)
 
         except Exception as e:
             logger.error(f"Stream error: {e}", exc_info=True)
