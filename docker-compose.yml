@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mcp-agent:
+    build:
+      context: ./apps/mcp-agent
+      dockerfile: Dockerfile
+    container_name: xerow-mcp-agent
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./apps/mcp-agent/.env
+    environment:
+      # Override with environment variables if needed
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount code for development (hot-reload)
+      # Comment out for production builds
+      - ./apps/mcp-agent:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - xerow-network
+
+networks:
+  xerow-network:
+    driver: bridge

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 158.883 167.15" preserveAspectRatio="xMidYMid meet">
+  <!-- Black background with curved corners -->
+  <rect width="158.883" height="167.15" rx="20" ry="20" fill="#000000" />
+  
+  <g clip-path="url(#clip0_46_80)" id="Group 427320662">
+    <path d="M114.07 121.761C134.931 102.994 136.443 70.7792 117.735 49.9829C99.0266 29.1865 66.8329 27.2926 45.9703 46.06C25.1076 64.8271 23.5974 97.0416 42.3049 117.838C61.0133 138.634 93.207 140.528 114.07 121.761Z" fill="#ffffff" stroke="#ffffff" stroke-width="16.0059" />
+    <path d="M46.3408 15.8584C38.2643 7.09999 24.6168 6.54724 15.8585 14.6238C7.10007 22.7003 6.54735 36.3477 14.6239 45.1061L112.543 151.291C120.619 160.05 134.267 160.603 143.025 152.526C151.783 144.449 152.336 130.802 144.26 122.044L46.3408 15.8584Z" fill="#ffffff" stroke="#ffffff" stroke-width="16.0059" />
+  </g>
+  <defs>
+    <clipPath id="clip0_46_80">
+      <rect fill="white" height="167.15" width="158.883" />
+    </clipPath>
+  </defs>
+</svg>

@@ -1,0 +1,15 @@
+{
+  "name": "xerow-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter web --filter xerow-server dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:server": "pnpm --filter xerow-server dev",
+    "build": "pnpm --filter web build && pnpm --filter xerow-server build",
+    "build:web": "pnpm --filter web build",
+    "build:server": "pnpm --filter xerow-server build",
+    "dev:agent": "pnpm --filter xerow-mcp-agent dev",
+    "setup:agent": "pnpm --filter xerow-mcp-agent run setup"
+  }
+}

@@ -1,0 +1,252 @@
+[
+  {
+    "id": "shoe_1",
+    "title": "Nike Run Swift 3",
+    "category": "running shoes",
+    "price": 4299,
+    "rating": 4.5,
+    "brand": "Nike",
+    "description": "Lightweight running shoes built for daily road runs, offering breathable mesh, responsive cushioning, and stable grip.",
+    "image_url": "https://static.nike.com/a/images/t_default/run-swift-3.jpg"
+  },
+  {
+    "id": "shoe_2",
+    "title": "Adidas Duramo SL",
+    "category": "running shoes",
+    "price": 3899,
+    "rating": 4.3,
+    "brand": "Adidas",
+    "description": "Comfort-focused running shoes with LIGHTMOTION cushioning, suitable for jogging, walking, and gym workouts.",
+    "image_url": "https://assets.adidas.com/images/w_600,f_auto/duramo-sl.jpg"
+  },
+  {
+    "id": "shoe_3",
+    "title": "Puma Velocity Nitro",
+    "category": "running shoes",
+    "price": 4999,
+    "rating": 4.6,
+    "brand": "Puma",
+    "description": "Performance running shoes featuring NITRO foam for superior responsiveness and comfort over long distances.",
+    "image_url": "https://images.puma.com/image/upload/velocity-nitro-running.jpg"
+  },
+  {
+    "id": "shoe_4",
+    "title": "ASICS Gel Contend 8",
+    "category": "running shoes",
+    "price": 4599,
+    "rating": 4.4,
+    "brand": "ASICS",
+    "description": "Reliable running shoes with GEL cushioning technology that enhances shock absorption and stability.",
+    "image_url": "https://images.asics.com/is/image/ASICS/gel-contend-8-running.jpg"
+  },
+  {
+    "id": "shoe_5",
+    "title": "Reebok Energy Runner",
+    "category": "running shoes",
+    "price": 3299,
+    "rating": 4.1,
+    "brand": "Reebok",
+    "description": "Affordable everyday running shoes designed for comfort, flexibility, and casual athletic use.",
+    "image_url": "https://assets.reebok.com/images/w_600,f_auto/energy-runner.jpg"
+  },
+  {
+    "id": "casual_1",
+    "title": "Nike Court Vision Low",
+    "category": "casual shoes",
+    "price": 5499,
+    "rating": 4.5,
+    "brand": "Nike",
+    "description": "Classic low-top sneakers inspired by basketball heritage, suitable for everyday casual wear.",
+    "image_url": "https://static.nike.com/a/images/t_default/court-vision-low.jpg"
+  },
+  {
+    "id": "casual_2",
+    "title": "Adidas Advantage Base",
+    "category": "casual shoes",
+    "price": 3999,
+    "rating": 4.2,
+    "brand": "Adidas",
+    "description": "Minimalist casual sneakers with a clean design, ideal for daily use and relaxed outings.",
+    "image_url": "https://assets.adidas.com/images/w_600,f_auto/advantage-base.jpg"
+  },
+  {
+    "id": "electronics_1",
+    "title": "Apple AirPods Pro (2nd Gen)",
+    "category": "wireless earbuds",
+    "price": 24999,
+    "rating": 4.7,
+    "brand": "Apple",
+    "description": "Premium wireless earbuds with active noise cancellation, spatial audio, and improved battery life.",
+    "image_url": "https://store.storeimages.cdn-apple.com/airpods-pro-2nd-gen.jpg"
+  },
+  {
+    "id": "electronics_2",
+    "title": "Sony WF-1000XM5",
+    "category": "wireless earbuds",
+    "price": 22999,
+    "rating": 4.6,
+    "brand": "Sony",
+    "description": "High-end noise-canceling earbuds delivering excellent sound quality and adaptive noise control.",
+    "image_url": "https://www.sony.co.in/image/wf-1000xm5-earbuds.jpg"
+  },
+  {
+    "id": "electronics_3",
+    "title": "Boat Airdopes 141",
+    "category": "wireless earbuds",
+    "price": 1499,
+    "rating": 4.1,
+    "brand": "Boat",
+    "description": "Budget wireless earbuds with long battery life and strong bass for everyday listening.",
+    "image_url": "https://cdn.shopify.com/boat-airdopes-141.jpg"
+  },
+  {
+    "id": "laptop_1",
+    "title": "Apple MacBook Air M2",
+    "category": "laptops",
+    "price": 114900,
+    "rating": 4.8,
+    "brand": "Apple",
+    "description": "Ultra-thin laptop powered by the Apple M2 chip, offering high performance and long battery life.",
+    "image_url": "https://store.storeimages.cdn-apple.com/macbook-air-m2.jpg"
+  },
+  {
+    "id": "laptop_2",
+    "title": "Dell Inspiron 14",
+    "category": "laptops",
+    "price": 64999,
+    "rating": 4.3,
+    "brand": "Dell",
+    "description": "Balanced laptop designed for productivity, multitasking, and everyday professional use.",
+    "image_url": "https://i.dell.com/sites/imagecontent/inspiron-14.jpg"
+  },
+  {
+    "id": "laptop_3",
+    "title": "HP Pavilion 15",
+    "category": "laptops",
+    "price": 58999,
+    "rating": 4.2,
+    "brand": "HP",
+    "description": "Everyday laptop suitable for students and professionals with a large display and solid performance.",
+    "image_url": "https://ssl-product-images.www8-hp.com/pavilion-15.jpg"
+  },
+  {
+    "id": "phone_1",
+    "title": "iPhone 14",
+    "category": "smartphones",
+    "price": 69999,
+    "rating": 4.6,
+    "brand": "Apple",
+    "description": "Flagship smartphone featuring a powerful processor, advanced cameras, and iOS ecosystem.",
+    "image_url": "https://store.storeimages.cdn-apple.com/iphone-14.jpg"
+  },
+  {
+    "id": "phone_2",
+    "title": "Samsung Galaxy S23",
+    "category": "smartphones",
+    "price": 74999,
+    "rating": 4.7,
+    "brand": "Samsung",
+    "description": "Premium Android smartphone with a high-refresh-rate display and excellent camera capabilities.",
+    "image_url": "https://images.samsung.com/is/image/samsung/galaxy-s23.jpg"
+  },
+  {
+    "id": "phone_3",
+    "title": "Redmi Note 13 Pro",
+    "category": "smartphones",
+    "price": 24999,
+    "rating": 4.4,
+    "brand": "Xiaomi",
+    "description": "Value-for-money smartphone with an AMOLED display, fast charging, and high-resolution camera.",
+    "image_url": "https://i01.appmifile.com/redmi-note-13-pro.jpg"
+  },
+  {
+    "id": "home_1",
+    "title": "Philips Air Fryer HD9252",
+    "category": "kitchen appliances",
+    "price": 9999,
+    "rating": 4.5,
+    "brand": "Philips",
+    "description": "Compact air fryer using rapid air technology to cook food with little to no oil.",
+    "image_url": "https://www.philips.co.in/c-dam/airfryer-hd9252.jpg"
+  },
+  {
+    "id": "home_2",
+    "title": "Prestige Induction Cooktop",
+    "category": "kitchen appliances",
+    "price": 2999,
+    "rating": 4.2,
+    "brand": "Prestige",
+    "description": "Energy-efficient induction cooktop with preset modes for fast and safe cooking.",
+    "image_url": "https://www.prestige.co.in/media/induction-cooktop.jpg"
+  },
+  {
+    "id": "fitness_1",
+    "title": "Fitbit Charge 6",
+    "category": "fitness trackers",
+    "price": 14999,
+    "rating": 4.4,
+    "brand": "Fitbit",
+    "description": "Advanced fitness tracker offering heart-rate monitoring, GPS, and detailed health insights.",
+    "image_url": "https://www.fitbit.com/global/content/charge-6.jpg"
+  },
+  {
+    "id": "fitness_2",
+    "title": "Mi Band 8",
+    "category": "fitness trackers",
+    "price": 3499,
+    "rating": 4.3,
+    "brand": "Xiaomi",
+    "description": "Lightweight fitness band with AMOLED display, long battery life, and multiple workout modes.",
+    "image_url": "https://i01.appmifile.com/mi-band-8.jpg"
+  },
+  {
+    "id": "book_1",
+    "title": "Atomic Habits",
+    "category": "books",
+    "price": 499,
+    "rating": 4.8,
+    "brand": "Penguin",
+    "description": "Self-help book focused on building good habits and breaking bad ones through small changes.",
+    "image_url": "https://images.penguinrandomhouse.com/atomic-habits.jpg"
+  },
+  {
+    "id": "book_2",
+    "title": "Deep Work",
+    "category": "books",
+    "price": 399,
+    "rating": 4.6,
+    "brand": "Grand Central Publishing",
+    "description": "A book on cultivating deep focus to produce meaningful and high-quality work.",
+    "image_url": "https://images.hachettebookgroup.com/deep-work.jpg"
+  },
+  {
+    "id": "car_1",
+    "title": "Tata Nano",
+    "category": "cars",
+    "price": 500000,
+    "rating": 4.5,
+    "brand": "Tata",
+    "description": "Compact city car designed for affordability, fuel efficiency, and easy urban mobility.",
+    "image_url": "https://imgd.aeplcdn.com/tata-nano.jpg"
+  },
+  {
+    "id": "car_2",
+    "title": "Maruti Suzuki Swift",
+    "category": "cars",
+    "price": 650000,
+    "rating": 4.6,
+    "brand": "Maruti",
+    "description": "Popular hatchback offering sporty design, good mileage, and reliable performance.",
+    "image_url": "https://www.marutisuzuki.com/images/swift.jpg"
+  },
+  {
+    "id": "car_3",
+    "title": "Hyundai Creta",
+    "category": "cars",
+    "price": 1100000,
+    "rating": 4.7,
+    "brand": "Hyundai",
+    "description": "Mid-size SUV known for comfort, strong feature set, and dependable performance.",
+    "image_url": "https://www.hyundai.com/content/dam/hyundai/creta.jpg"
+  }
+]
