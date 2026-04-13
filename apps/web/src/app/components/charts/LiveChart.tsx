@@ -63,6 +63,46 @@ const SEVERITY_COLORS: Record<string, string> = {
   purple: '#a855f7',
 };
 
+/**
+ * ISA-101 Accessibility: distinct shapes per severity so color-blind operators
+ * can differentiate markers. green=circle, amber=triangle, red=diamond, purple=star
+ */
+function SeverityShape({ cx, cy, severity, onClick }: { cx: number; cy: number; severity: string; onClick?: () => void }) {
+  const color = SEVERITY_COLORS[severity] || '#888';
+  const bg = 'var(--background)';
+  const common = { fill: color, stroke: bg, strokeWidth: 2, cursor: onClick ? 'pointer' : undefined, onClick };
+  const r = 7;
+
+  switch (severity) {
+    case 'amber': {
+      // Triangle (pointing up)
+      const h = r * 1.8;
+      const half = r * 1.1;
+      return <polygon points={`${cx},${cy - h / 2} ${cx - half},${cy + h / 2} ${cx + half},${cy + h / 2}`} {...common} />;
+    }
+    case 'red': {
+      // Diamond (rotated square)
+      const d = r * 1.2;
+      return <polygon points={`${cx},${cy - d} ${cx + d},${cy} ${cx},${cy + d} ${cx - d},${cy}`} {...common} />;
+    }
+    case 'purple': {
+      // 4-point star
+      const outer = r * 1.3;
+      const inner = r * 0.5;
+      const pts = Array.from({ length: 8 }, (_, i) => {
+        const angle = (i * Math.PI) / 4 - Math.PI / 2;
+        const rad = i % 2 === 0 ? outer : inner;
+        return `${cx + rad * Math.cos(angle)},${cy + rad * Math.sin(angle)}`;
+      }).join(' ');
+      return <polygon points={pts} {...common} />;
+    }
+    default: {
+      // Circle (green / fallback)
+      return <circle cx={cx} cy={cy} r={r} {...common} />;
+    }
+  }
+}
+
 const chartConfig = {
   value: { label: 'Sensor Value', color: 'hsl(210 100% 50%)' },
   comparison: { label: 'Historical', color: 'hsl(0 0% 55%)' },
@@ -290,18 +330,23 @@ export function LiveChart({
           />
         )}
 
-        {/* Anomaly markers */}
+        {/* Anomaly markers — ISA-101 distinct shapes per severity */}
         {anomalyDots.map((a) => (
           <ReferenceDot
             key={a.anomaly_id}
             x={a.timestamp}
             y={a.value}
-            r={7}
-            fill={SEVERITY_COLORS[a.severity] || '#888'}
-            stroke="var(--background)"
-            strokeWidth={2}
-            onClick={() => onAnomalyClick?.(a.anomaly_id)}
-            style={{ cursor: 'pointer' }}
+            r={0}
+            fill="transparent"
+            stroke="none"
+            shape={(props: any) => (
+              <SeverityShape
+                cx={props.cx}
+                cy={props.cy}
+                severity={a.severity}
+                onClick={() => onAnomalyClick?.(a.anomaly_id)}
+              />
+            )}
           />
         ))}
       </AreaChart>

@@ -3,7 +3,7 @@
  * Wraps Thread component with AssistantRuntimeProvider
  */
 
-import { AssistantRuntimeProvider, useLocalRuntime } from "@assistant-ui/react";
+import { AssistantRuntimeProvider, useLocalRuntime, WebSpeechSynthesisAdapter } from "@assistant-ui/react";
 import { Thread } from "./thread";
 import { createAssistantUIAdapter } from "../../../lib/assistant-ui-adapter";
 import { createThreadHistoryAdapter } from "../../../lib/history-adapter";
@@ -97,6 +97,7 @@ function Chat({
   const runtime = useLocalRuntime(adapter, {
     adapters: {
       history: historyAdapter,
+      speech: new WebSpeechSynthesisAdapter(),
     },
   });
 

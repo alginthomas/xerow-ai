@@ -13,15 +13,17 @@ import {
   useComposerRuntime,
   useThreadRuntime,
 } from "@assistant-ui/react";
-import { ArrowUpIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArrowRight, PencilIcon, SearchIcon } from "lucide-react";
+import { ArrowUpIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArrowRight, PencilIcon, SearchIcon, MicIcon, MicOffIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { MarkdownText } from "./markdown-text";
 import { ToolFallback } from "./tool-fallback";
 import Group427320662 from '../../../imports/Group427320662';
 import { ShiftBriefing } from '../ShiftBriefing';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useChatContext } from "./ChatContext";
+import { createWhisperSpeechAdapter, isSpeechRecognitionSupported } from "../../../lib/speech-recognition-adapter";
+import type { SpeechRecognitionAdapter } from "../../../lib/speech-recognition-adapter";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
 
@@ -451,7 +453,7 @@ const WebSearchButton = () => {
       
       // Clear the composer input
       if (composerRuntime) {
-        composerRuntime.setValue('');
+        composerRuntime.setText('');
       }
     } else {
       // Prompt user to enter a search query
@@ -512,12 +514,113 @@ const Composer = () => {
   );
 };
 
+// Voice Input Button — push-to-talk for field operators
+const VoiceInputButton = () => {
+  const composerRuntime = useComposerRuntime();
+  const thread = useThread();
+  const isRunning = thread.isRunning;
+  const [isListening, setIsListening] = useState(false);
+  const [interimText, setInterimText] = useState('');
+  const sessionRef = useRef<ReturnType<SpeechRecognitionAdapter['listen']> | null>(null);
+  const adapterRef = useRef<SpeechRecognitionAdapter | null>(null);
+
+  // Lazily create adapter
+  const getAdapter = useCallback(() => {
+    if (!adapterRef.current) {
+      adapterRef.current = createWhisperSpeechAdapter();
+    }
+    return adapterRef.current;
+  }, []);
+
+  const startListening = useCallback(() => {
+    if (isListening || isRunning) return;
+
+    const adapter = getAdapter();
+    const session = adapter.listen();
+    sessionRef.current = session;
+    setIsListening(true);
+    setInterimText('');
+
+    // Live transcript preview — update composer as user speaks
+    session.onSpeech((result) => {
+      setInterimText(result.transcript);
+      composerRuntime.setText(result.transcript);
+    });
+
+    // Final transcript — set in composer when speech ends
+    session.onSpeechEnd((result) => {
+      if (result.transcript) {
+        composerRuntime.setText(result.transcript);
+      }
+      setIsListening(false);
+      setInterimText('');
+      sessionRef.current = null;
+    });
+  }, [isListening, isRunning, composerRuntime, getAdapter]);
+
+  const stopListening = useCallback(async () => {
+    if (sessionRef.current) {
+      await sessionRef.current.stop();
+      setIsListening(false);
+      setInterimText('');
+      sessionRef.current = null;
+    }
+  }, []);
+
+  const toggleListening = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }, [isListening, startListening, stopListening]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (sessionRef.current) {
+        sessionRef.current.cancel();
+      }
+    };
+  }, []);
+
+  if (!isSpeechRecognitionSupported()) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={`h-8 w-8 rounded-full transition-all ${
+            isListening
+              ? 'bg-severity-red/20 text-severity-red hover:bg-severity-red/30 ring-2 ring-severity-red/40'
+              : 'hover:bg-accent text-muted-foreground'
+          }`}
+          onClick={toggleListening}
+          disabled={isRunning}
+          aria-label={isListening ? 'Stop listening' : 'Voice input'}
+        >
+          {isListening ? (
+            <MicOffIcon className="h-4 w-4 animate-pulse" />
+          ) : (
+            <MicIcon className="h-4 w-4" />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{isListening ? 'Stop listening' : 'Voice input'}</TooltipContent>
+    </Tooltip>
+  );
+};
+
 // Composer Action (Send Button)
 const ComposerAction = () => {
   const thread = useThread();
 
   return (
-    <div className="relative mx-1 mt-2 mb-2 flex items-center justify-end">
+    <div className="relative mx-1 mt-2 mb-2 flex items-center justify-end gap-1.5">
+      <VoiceInputButton />
       <ThreadPrimitive.If running={false}>
         <ComposerPrimitive.Send asChild>
           <Tooltip>

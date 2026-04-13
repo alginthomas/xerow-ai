@@ -1,0 +1,3 @@
+/api/chat/*  https://xerow-agent-production.up.railway.app/api/chat/:splat  200
+/api/*       https://xerow-ai-production.up.railway.app/api/:splat  200
+/*           /index.html  200
