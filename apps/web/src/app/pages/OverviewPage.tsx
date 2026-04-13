@@ -16,8 +16,8 @@ import {
   Activity, AlertTriangle, TicketCheck, Wind, GitBranch, Droplet,
   ArrowUpRight, CheckCircle, Radio,
 } from 'lucide-react';
-import { API_BASE } from '../../lib/config';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 function getToken() { return localStorage.getItem('auth_token'); }
 
 const TYPE_ICONS: Record<string, typeof Wind> = { turbine: Wind, pipeline: GitBranch, well: Droplet };
@@ -83,20 +83,30 @@ export function OverviewPage() {
         <LastUpdated timestamp={lastUpdated} onRefresh={fetchData} />
       </div>
 
-      {/* Alarm Banner — THE dominant visual element */}
+      {/* SLA Breach Banner — subtle indicator dot, not full-banner pulse */}
       {breachedTickets.length > 0 && (
-        <div className="flex items-center gap-4 rounded-xl bg-severity-red/10 border border-severity-red/30 px-5 py-4 animate-pulse">
-          <AlertTriangle className="h-6 w-6 text-severity-red shrink-0" />
+        <div className="flex items-center gap-4 rounded-xl bg-severity-red/8 border border-severity-red/20 px-5 py-4">
+          <div className="relative shrink-0">
+            <AlertTriangle className="h-6 w-6 text-severity-red" />
+            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-severity-red animate-pulse" />
+          </div>
           <div className="flex-1">
-            <div className="text-lg font-bold text-severity-red">{breachedTickets.length} SLA Breach{breachedTickets.length > 1 ? 'es' : ''}</div>
-            <p className="text-sm text-severity-red/80">Immediate attention required</p>
+            <div className="text-base font-semibold text-severity-red">
+              {breachedTickets.length} SLA Breach{breachedTickets.length > 1 ? 'es' : ''}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {breachedTickets.length === 1
+                ? `${breachedTickets[0].title?.slice(0, 50) || 'Ticket'} — overdue`
+                : `${breachedTickets.filter((t: any) => t.severity === 'red').length} red, ${breachedTickets.filter((t: any) => t.severity !== 'red').length} amber — review needed`}
+            </p>
           </div>
           <Button
+            size="sm"
             variant="outline"
-            className="border-severity-red/40 text-severity-red hover:bg-severity-red/10"
+            className="border-severity-red/30 text-severity-red hover:bg-severity-red/10"
             onClick={() => navigate('/escalation')}
           >
-            View Escalation
+            Review
           </Button>
         </div>
       )}
