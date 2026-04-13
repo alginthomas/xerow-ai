@@ -21,6 +21,7 @@ import { LiveChart } from '../components/charts/LiveChart';
 import { SlaTimer } from '../components/SlaTimer';
 import { TicketCreateDialog } from '../components/TicketCreateDialog';
 import { TicketEditSheet } from '../components/TicketEditSheet';
+import { API_BASE } from '../../lib/config';
 import {
   ArrowLeft,
   MapPin,
@@ -33,7 +34,6 @@ import {
   Plus,
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const SEVERITY_BADGE: Record<string, string> = {
   green: 'bg-severity-green/20 text-severity-green border-severity-green/30',

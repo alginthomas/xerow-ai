@@ -13,11 +13,11 @@ import {
   CommandList,
   CommandSeparator,
 } from './ui/command';
+import { API_BASE } from '../../lib/config';
 import {
   Wind, GitBranch, Droplet, TicketCheck, AlertTriangle, LayoutDashboard,
   Bot, Settings, Activity, MessageSquarePlus,
 } from 'lucide-react';
-import { API_BASE } from '../../lib/config';
 
 
 function getToken() { return localStorage.getItem('auth_token'); }

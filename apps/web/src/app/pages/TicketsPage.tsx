@@ -14,10 +14,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { LastUpdated } from '../components/LastUpdated';
 import { SlaTimer } from '../components/SlaTimer';
 import { toast } from 'sonner';
+import { API_BASE } from '../../lib/config';
 import {
   TicketCheck, AlertTriangle, Clock, User, Search, CheckCircle, ArrowUpRight,
 } from 'lucide-react';
-import { API_BASE } from '../../lib/config';
 
 
 const SEV_BADGE: Record<string, string> = {

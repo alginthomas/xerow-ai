@@ -13,10 +13,10 @@ import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { SlaTimer } from './SlaTimer';
 import { toast } from 'sonner';
+import { API_BASE } from '../../lib/config';
 import {
   CheckCircle, ArrowUpRight, MessageSquare, Clock, User, Bot, Cpu,
 } from 'lucide-react';
-import { API_BASE } from '../../lib/config';
 
 
 const SEV_BADGE: Record<string, string> = {
