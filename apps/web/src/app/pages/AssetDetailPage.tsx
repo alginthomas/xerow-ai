@@ -17,9 +17,10 @@ import {
   SheetTitle,
   SheetDescription,
 } from '../components/ui/sheet';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { TimeSeriesChart } from '../components/charts/TimeSeriesChart';
+import { LiveChart } from '../components/charts/LiveChart';
 import { SlaTimer } from '../components/SlaTimer';
+import { TicketCreateDialog } from '../components/TicketCreateDialog';
+import { TicketEditSheet } from '../components/TicketEditSheet';
 import {
   ArrowLeft,
   MapPin,
@@ -29,15 +30,20 @@ import {
   Bot,
   Clock,
   Shield,
+  Plus,
 } from 'lucide-react';
-import { API_BASE } from '../../lib/config';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const SEVERITY_BADGE: Record<string, string> = {
   green: 'bg-severity-green/20 text-severity-green border-severity-green/30',
   amber: 'bg-severity-amber/20 text-severity-amber border-severity-amber/30',
   red: 'bg-severity-red/20 text-severity-red border-severity-red/30',
   purple: 'bg-severity-purple/20 text-severity-purple border-severity-purple/30',
+};
+
+const SEVERITY_COLORS: Record<string, string> = {
+  green: '#22c55e', amber: '#f59e0b', red: '#ef4444', purple: '#a855f7',
 };
 
 const STATUS_BADGE: Record<string, string> = {
@@ -72,30 +78,36 @@ export function AssetDetailPage() {
   const [selectedAnomaly, setSelectedAnomaly] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Ticket creation from chart drag-select
+  const [createTicketOpen, setCreateTicketOpen] = useState(false);
+  const [editTicketId, setEditTicketId] = useState<string | null>(null);
+  const [dragDescription, setDragDescription] = useState('');
+  const [highlightRange, setHighlightRange] = useState<{ start: string; end: string; color: string; label?: string } | null>(null);
+
   // Fetch asset details
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
+    try {
+      const [assetRes, anomalyRes, ticketRes] = await Promise.all([
+        apiFetch(`/api/v1/assets/${id}`),
+        apiFetch(`/api/v1/assets/${id}/anomalies?limit=50`),
+        apiFetch(`/api/v1/assets/${id}/tickets?limit=20`),
+      ]);
+      setAsset(assetRes.data);
+      setAnomalies(anomalyRes.data || []);
+      setTickets(ticketRes.data || []);
 
-    Promise.all([
-      apiFetch(`/api/v1/assets/${id}`),
-      apiFetch(`/api/v1/assets/${id}/anomalies?limit=50`),
-      apiFetch(`/api/v1/assets/${id}/tickets?limit=20`),
-    ])
-      .then(([assetRes, anomalyRes, ticketRes]) => {
-        setAsset(assetRes.data);
-        setAnomalies(anomalyRes.data || []);
-        setTickets(ticketRes.data || []);
+      // Auto-select first sensor for chart
+      const sensors = assetRes.data?.sensors;
+      if (sensors?.length > 0 && !activeSensorId) {
+        setActiveSensorId(sensors[0].id);
+      }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  }, [id, activeSensorId]);
 
-        // Auto-select first sensor for chart
-        const sensors = assetRes.data?.sensors;
-        if (sensors?.length > 0) {
-          setActiveSensorId(sensors[0].id);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [id]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   // Fetch sensor readings when active sensor changes
   useEffect(() => {
@@ -227,16 +239,48 @@ export function AssetDetailPage() {
         </CardHeader>
         <CardContent>
           {sensorReadings?.data?.length > 0 ? (
-            <TimeSeriesChart
-              data={sensorReadings.data}
-              baseline={sensorReadings.baseline}
-              anomalies={anomalies.filter(
-                (a) => a.sensor_id === activeSensorId
+            <>
+              {highlightRange && (
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <span className="text-xs text-muted-foreground">
+                    Highlighting: {new Date(highlightRange.start).toLocaleTimeString()} — {new Date(highlightRange.end).toLocaleTimeString()}
+                  </span>
+                  <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setHighlightRange(null)}>
+                    Clear
+                  </Button>
+                </div>
               )}
-              sensorName={activeSensor?.name}
-              unit={activeSensor?.unit}
-              onAnomalyClick={handleAnomalyClick}
-            />
+              <LiveChart
+                data={sensorReadings.data}
+                baseline={sensorReadings.baseline}
+                anomalies={anomalies.filter(
+                  (a) => a.sensor_id === activeSensorId
+                )}
+                sensorName={activeSensor?.name}
+                unit={activeSensor?.unit}
+                onAnomalyClick={(aId) => {
+                  const a = anomalies.find((x) => x.anomaly_id === aId);
+                  if (a) {
+                    setSelectedAnomaly(a);
+                    const t = new Date(a.detected_at).getTime();
+                    setHighlightRange({
+                      start: new Date(t - 5 * 60000).toISOString(),
+                      end: new Date(t + 5 * 60000).toISOString(),
+                      color: SEVERITY_COLORS[a.severity] || '#f59e0b',
+                      label: `${a.severity} anomaly`,
+                    });
+                  }
+                }}
+                onRangeSelect={(start, end) => {
+                  const desc = `Manual observation: anomaly detected between ${new Date(start).toLocaleString()} and ${new Date(end).toLocaleString()}`;
+                  setDragDescription(desc);
+                  setHighlightRange({ start, end, color: '#f59e0b', label: 'Selected range' });
+                  setCreateTicketOpen(true);
+                }}
+                highlightRange={highlightRange}
+                className="aspect-[2.5/1]"
+              />
+            </>
           ) : (
             <div className="flex h-[300px] items-center justify-center text-muted-foreground">
               {activeSensorId ? 'Loading sensor data...' : 'Select a sensor to view readings'}
@@ -399,7 +443,7 @@ export function AssetDetailPage() {
                       <TableRow
                         key={ticket.ticket_id}
                         className="cursor-pointer hover:bg-accent/50"
-                        onClick={() => navigate(`/tickets/${ticket.ticket_id}`)}
+                        onClick={() => setEditTicketId(ticket.ticket_id)}
                       >
                         <TableCell>
                           <Badge
@@ -566,7 +610,7 @@ export function AssetDetailPage() {
                 </div>
               )}
 
-              {selectedAnomaly.ticket_id && (
+              {selectedAnomaly.ticket_id ? (
                 <Button
                   variant="outline"
                   className="w-full"
@@ -578,11 +622,42 @@ export function AssetDetailPage() {
                   <TicketCheck className="mr-2 h-4 w-4" />
                   View Linked Ticket
                 </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setSelectedAnomaly(null);
+                    setCreateTicketOpen(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Ticket from Anomaly
+                </Button>
               )}
             </div>
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Ticket Create Dialog */}
+      <TicketCreateDialog
+        assetId={id || ''}
+        assetName={asset.name}
+        anomalyId={selectedAnomaly?.anomaly_id}
+        defaultDescription={dragDescription}
+        open={createTicketOpen}
+        onOpenChange={(open) => { setCreateTicketOpen(open); if (!open) setDragDescription(''); }}
+        onCreated={fetchData}
+      />
+
+      {/* Ticket Edit Sheet */}
+      <TicketEditSheet
+        ticketId={editTicketId}
+        open={!!editTicketId}
+        onOpenChange={(open) => { if (!open) setEditTicketId(null); }}
+        onUpdated={fetchData}
+      />
     </div>
   );
 }
