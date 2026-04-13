@@ -170,7 +170,13 @@ async function seed() {
         : severity === 'red' ? 15 + Math.random() * 15
         : Math.random() * 20;
 
-      const hoursAgo = Math.floor(Math.random() * 168); // Last 7 days
+      // Ensure ~40% of anomalies fall within last 24h so dashboard always has data
+      let hoursAgo: number;
+      if (i < 20) {
+        hoursAgo = Math.floor(Math.random() * 24); // Last 24h
+      } else {
+        hoursAgo = 24 + Math.floor(Math.random() * 144); // 1-7 days ago
+      }
 
       await client.query(
         `INSERT INTO anomalies (asset_id, sensor_id, detected_at, severity, colour_code, deviation_pct, confidence_score, data_snapshot, status)
@@ -193,7 +199,7 @@ async function seed() {
         ]
       );
     }
-    console.log('  Created 50 sample anomalies');
+    console.log('  Created 50 sample anomalies (20 within last 24h)');
 
     console.log('Seeding sample tickets...');
     // Get amber+ anomalies that don't have tickets yet
@@ -239,32 +245,39 @@ async function seed() {
     }
     console.log(`  Created ${anomalyResult.rows.length} sample tickets`);
 
-    console.log('Seeding sensor readings (24h of data per sensor)...');
+    console.log('Seeding sensor readings (7 days of data per sensor)...');
     let readingCount = 0;
     const now = new Date();
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+    const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const POINTS_PER_SENSOR = Math.floor(SEVEN_DAYS_MS / INTERVAL_MS); // 2016 readings per sensor
+
     for (let sIdx = 0; sIdx < sensorIds.length; sIdx++) {
       const sensor = SENSORS[sIdx];
       const baseVal = sensor.baseline_value;
       const stddev = sensor.baseline_stddev;
-      const values: string[] = [];
 
-      for (let m = 0; m < 288; m++) { // 288 × 5min = 24 hours
-        const t = new Date(now.getTime() - (287 - m) * 5 * 60 * 1000);
-        const hoursElapsed = (t.getTime() - (now.getTime() - 24 * 60 * 60 * 1000)) / (1000 * 60 * 60);
-        const dailyCycle = Math.sin((hoursElapsed / 24) * Math.PI * 2) * stddev * 0.5;
-        const noise = (Math.random() + Math.random() + Math.random() - 1.5) * stddev;
-        const spike = Math.random() < 0.02 ? (Math.random() > 0.5 ? 1 : -1) * stddev * 3 : 0;
-        const val = Math.round((baseVal + dailyCycle + noise + spike) * 100) / 100;
-        values.push(`('${sensorIds[sIdx]}', '${t.toISOString()}', ${val})`);
+      // Batch in chunks of 500 to avoid query size limits
+      const CHUNK = 500;
+      for (let start = 0; start < POINTS_PER_SENSOR; start += CHUNK) {
+        const values: string[] = [];
+        const end = Math.min(start + CHUNK, POINTS_PER_SENSOR);
+        for (let m = start; m < end; m++) {
+          const t = new Date(now.getTime() - (POINTS_PER_SENSOR - 1 - m) * INTERVAL_MS);
+          const hoursElapsed = (now.getTime() - t.getTime()) / (1000 * 60 * 60);
+          const dailyCycle = Math.sin((hoursElapsed / 24) * Math.PI * 2) * stddev * 0.5;
+          const noise = (Math.random() + Math.random() + Math.random() - 1.5) * stddev;
+          const spike = Math.random() < 0.02 ? (Math.random() > 0.5 ? 1 : -1) * stddev * 3 : 0;
+          const val = Math.round((baseVal + dailyCycle + noise + spike) * 100) / 100;
+          values.push(`('${sensorIds[sIdx]}', '${t.toISOString()}', ${val})`);
+        }
+        await client.query(
+          `INSERT INTO sensor_readings (sensor_id, timestamp, value) VALUES ${values.join(',')}`
+        );
+        readingCount += values.length;
       }
-
-      // Batch insert
-      await client.query(
-        `INSERT INTO sensor_readings (sensor_id, timestamp, value) VALUES ${values.join(',')}`
-      );
-      readingCount += values.length;
     }
-    console.log(`  Created ${readingCount} sensor readings`);
+    console.log(`  Created ${readingCount} sensor readings (7 days × ${sensorIds.length} sensors)`);
 
     await client.query('COMMIT');
     console.log('\nSeed complete!');

@@ -32,6 +32,7 @@ export function OverviewPage() {
   const navigate = useNavigate();
   const [assets, setAssets] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
+  const [anomalies, setAnomalies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -39,12 +40,15 @@ export function OverviewPage() {
     const token = getToken();
     if (!token) return;
     try {
-      const [assetRes, ticketRes] = await Promise.all([
-        fetch(`${API_BASE}/api/v1/assets?limit=50`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
-        fetch(`${API_BASE}/api/v1/tickets?limit=20`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+      const headers = { Authorization: `Bearer ${token}` };
+      const [assetRes, ticketRes, anomalyRes] = await Promise.all([
+        fetch(`${API_BASE}/api/v1/assets?limit=50`, { headers }).then((r) => r.json()),
+        fetch(`${API_BASE}/api/v1/tickets?limit=50`, { headers }).then((r) => r.json()),
+        fetch(`${API_BASE}/api/v1/anomalies?limit=50`, { headers }).then((r) => r.json()),
       ]);
       setAssets(assetRes.data || []);
       setTickets(ticketRes.data || []);
+      setAnomalies(anomalyRes.data || []);
       setLastUpdated(new Date());
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
@@ -61,7 +65,7 @@ export function OverviewPage() {
   const totalAssets = assets.length;
   const openTickets = tickets.filter((t: any) => !['closed', 'false_positive'].includes(t.status));
   const breachedTickets = tickets.filter((t: any) => t.sla_breached);
-  const recentAnomalies = assets.reduce((sum: number, a: any) => sum + (a.recent_anomaly_count || 0), 0);
+  const recentAnomalies = anomalies.length;
   const degradedAssets = assets.filter((a: any) => a.status !== 'operational');
 
   if (loading) {
