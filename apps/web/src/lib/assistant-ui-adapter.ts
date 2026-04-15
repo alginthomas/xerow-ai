@@ -6,9 +6,14 @@
 
 import type { ChatModelAdapter, ThreadMessage } from "@assistant-ui/react";
 
-// In dev: use localhost:8000 directly. In prod: use '' so Netlify proxies /api/chat/* → Railway.
-const agentEnv = import.meta.env.VITE_PYTHON_AGENT_URL;
-const PYTHON_AGENT_URL = agentEnv !== undefined && agentEnv !== '' ? agentEnv : (import.meta.env.DEV ? 'http://localhost:8000' : '');
+// In production, always use '' (relative) so Netlify proxies /api/chat/* → Railway agent.
+// Never point the browser directly at localhost in production — that causes CORS failures.
+// VITE_PYTHON_AGENT_URL is only honoured when it is a non-localhost URL (useful for staging).
+const _agentEnv = import.meta.env.VITE_PYTHON_AGENT_URL ?? '';
+const _isLocalhost = _agentEnv.includes('localhost') || _agentEnv.includes('127.0.0.1');
+const PYTHON_AGENT_URL = import.meta.env.DEV
+  ? (_agentEnv || 'http://localhost:8000')   // dev: env var or default to local
+  : (_agentEnv && !_isLocalhost ? _agentEnv : ''); // prod: env var only if non-local, else proxy
 const API_ENDPOINT = `${PYTHON_AGENT_URL}/api/chat`;
 
 export interface ToolCallData {
