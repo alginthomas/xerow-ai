@@ -105,9 +105,20 @@ if is_dev:
         allow_headers=["*"],
     )
 else:
+    # CORS_ALLOWED_ORIGINS: comma-separated list of allowed origins for production.
+    # Set this in Railway env vars to your web app's URL, e.g.:
+    #   https://xerow-ai.up.railway.app,https://your-custom-domain.com
+    _raw_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    _allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+    if not _allowed_origins:
+        logger.warning(
+            "CORS_ALLOWED_ORIGINS is not set — falling back to localhost:5173. "
+            "Set it in Railway env vars to your web frontend URL."
+        )
+        _allowed_origins = ["http://localhost:5173"]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=_allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

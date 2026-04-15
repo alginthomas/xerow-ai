@@ -6,7 +6,7 @@
 
 import type { ChatModelAdapter, ThreadMessage } from "@assistant-ui/react";
 
-// Agent URL: empty in production (proxied via /agent/* by Netlify), localhost in dev
+// In dev: use localhost:8000 directly. In prod: use '' so Netlify proxies /api/chat/* → Railway.
 const agentEnv = import.meta.env.VITE_PYTHON_AGENT_URL;
 const PYTHON_AGENT_URL = agentEnv !== undefined && agentEnv !== '' ? agentEnv : (import.meta.env.DEV ? 'http://localhost:8000' : '');
 const API_ENDPOINT = `${PYTHON_AGENT_URL}/api/chat`;
@@ -254,11 +254,13 @@ export function createAssistantUIAdapter(options?: AssistantUIAdapterOptions): C
           return;
         }
 
-        // Provide error message
-        let errorMessage = "Xerow AI is temporarily unavailable. ";
+        // Provide more detailed error message
+        let errorMessage = "Xerow AI agent is not reachable. ";
 
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-          errorMessage += "We're unable to connect to the AI service right now. Please try again in a moment.";
+          errorMessage += "The agent server appears to be offline.\n\n";
+          errorMessage += "To start it, run: `python3 apps/mcp-agent/server.py`\n";
+          errorMessage += "The agent should be running at http://localhost:8000";
         } else if (error instanceof Error) {
           errorMessage += error.message;
         } else {
